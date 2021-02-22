@@ -1,8 +1,20 @@
 #!/usr/bin/python3
 from PyQt5.QtGui import *
 import numpy as np
-import cv2 # use headless cv to avoid known bug when using PyQT5+CV
+import cv2
 from collections import namedtuple
+
+
+def calc_angle(x, y):
+    from math import atan2, degrees
+    res = round(degrees(atan2(x, y)))
+    if res < 0:
+        return res + 360
+    return res
+
+
+def clamp(a, _min, _max):
+    return max(min(a, _max), _min)
 
 
 def numpyQImage(image):
@@ -26,24 +38,24 @@ def numpyQImage(image):
     return q_image
 
 
-def rotateAndScale(img, degrees_ccw, scale_factor=1):
+def rotateAndScale(img, degrees_clockwise, scale_factor=1):
     old_y, old_x, _ = img.shape
-    rotation_matrix = cv2.getRotationMatrix2D(center=(old_x/2, old_y/2), angle=degrees_ccw, scale=scale_factor)
+    rotation_matrix = cv2.getRotationMatrix2D(center=(old_x/2, old_y/2), angle=degrees_clockwise, scale=scale_factor)
     new_x, new_y = old_x*scale_factor, old_y*scale_factor
-    r = np.deg2rad(degrees_ccw)
-    new_x, new_y = (abs(np.sin(r)*new_y) + abs(np.cos(r)*new_x), abs(np.sin(r)*new_x) + abs(np.cos(r)*new_y))
-    tx, ty = ((new_x-old_x)/2, (new_y-old_y)/2)
+    r = np.deg2rad(degrees_clockwise)
+    new_x, new_y = abs(np.sin(r)*new_y) + abs(np.cos(r)*new_x), abs(np.sin(r)*new_x) + abs(np.cos(r)*new_y)
+    tx, ty = (new_x-old_x)/2, (new_y-old_y)/2
     rotation_matrix[0, 2] += tx
     rotation_matrix[1, 2] += ty
     return cv2.warpAffine(img, rotation_matrix, dsize=(int(new_x), int(new_y)))
 
 
-def rotation(_pixmap, angle):
+def rotation(_pixmap, degrees_clockwise):
     img = _pixmap.toImage()
-    channels_count = 4
+    channels_count = 4  # TODO: dont hardcode this stuff
     buffer_string = img.bits().asstring(img.width() * img.height() * channels_count)
     buffer_array = np.frombuffer(buffer_string, dtype=np.uint8).reshape((img.height(), img.width(), channels_count))
-    rotated = rotateAndScale(buffer_array, angle)
+    rotated = rotateAndScale(buffer_array, -degrees_clockwise)
     rotated_q_image = numpyQImage(rotated)
     rotated_pixmap = QPixmap.fromImage(rotated_q_image)
 
