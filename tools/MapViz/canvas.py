@@ -2,8 +2,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QIcon, QImage, QPixmap, QKeyEvent, QMouseEvent, QWheelEvent, QShowEvent, QResizeEvent, QKeySequence
 from PyQt5.QtCore import QPoint, QPointF, QRect, QRectF, QSize, QSizeF, pyqtSignal
 from PyQt5.Qt import Qt
-from PyQt5.QtWidgets import (
-    QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsPixmapItem, QRubberBand)
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsPixmapItem, QRubberBand
 import numpy as np
 from helpers import clamp, calc_angle, rotation, scaleToFit, dirr
 
