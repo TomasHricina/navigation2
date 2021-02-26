@@ -210,6 +210,7 @@ class ImageView(QGraphicsView):
 
         self.update()
 
+    # used for Undo/Redo - not fully developed yet
     def add_and_cull_history(self) -> None:
         self.pixmap_history_current_idx += 1
         self.pixmap_history = self.pixmap_history[:self.pixmap_history_current_idx]
@@ -251,6 +252,7 @@ class ImageView(QGraphicsView):
 
     def angle_rotate(self) -> None:
         self.angle %= 360
+        # used for Undo/Redo - not fully developed yet
         self.pixmap = rotation(self.pixmap_history[self.pixmap_history_current_idx], self.angle-self.angle_at_cropping)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -326,6 +328,7 @@ class ImageView(QGraphicsView):
         self.fitInView(self.image_scene_rect, Qt.KeepAspectRatio)
         self.update()
 
+    # used for Undo/Redo - not fully developed yet
     def reconstruct_from_history(self):
         for history_idx, history_event in enumerate(reversed(self.pixmap_history)):
             if isinstance(history_event, QPixmap):
