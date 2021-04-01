@@ -3,6 +3,21 @@ from PyQt5.QtGui import *
 import numpy as np
 import cv2
 from collections import namedtuple
+from enum import Enum, auto, unique
+
+
+@unique
+class Routine(Enum):
+    LOAD = auto()
+    CROP = auto()
+    ANGLE = auto()
+
+
+def dict2str(dictionary) -> str:
+    result_string = ''
+    for key, value in dictionary.items():
+        result_string += (key + ': ' + str(value) + '\n')
+    return result_string
 
 
 def calc_angle(x, y):
@@ -58,7 +73,6 @@ def rotation(_pixmap, degrees_clockwise):
     rotated = rotateAndScale(buffer_array, -degrees_clockwise)
     rotated_q_image = numpyQImage(rotated)
     rotated_pixmap = QPixmap.fromImage(rotated_q_image)
-
     return rotated_pixmap
 
 
@@ -71,88 +85,6 @@ def scaleToFit(canvas_w, canvas_h, image_w, image_h):
         image_h = canvas_h
         image_w = image_h * image_width_height_ratio
     return dimensions(int(image_w), int(image_h))
-
-
-def parse_map_yaml(path_to_yaml):
-    import yaml  # pip pyaml
-    import os.path
-    """
-    Opens YAML file via absolute or relative path. 
-    CWD must be set to, where YAML file is located
-    Makes sure, that all required fields are filled and within constraints
-    specified in https://wiki.ros.org/map_server#YAML_format
-    If no error:
-        return parsed YAML dictionary
-    else:
-        list of error messages
-    Should not throw.
-    """
-
-    error_messages = []
-    try:
-        with open(path_to_yaml, 'r') as stream:
-            parsed_yaml = yaml.safe_load(stream)
-
-        # * Required fields:
-        if not os.path.isfile(parsed_yaml['image']):
-            error_messages.append('No image found')
-
-        # Resolution
-        try:
-            float(parsed_yaml['resolution'])
-        except ValueError:
-            error_messages.append('Faulty resolution type')
-
-        # Origin
-        yaml_origin = parsed_yaml['origin']
-        if not (type(yaml_origin) is list):
-            error_messages.append('Faulty origin type - not a list')
-        if not (all(isinstance(n, (int, float)) for n in yaml_origin)):
-            error_messages.append('Faulty element type in origin list')
-
-        # Occupied threshold
-        try:
-            yaml_occupied_thresh = float(parsed_yaml['occupied_thresh'])
-        except ValueError:
-            error_messages.append('Faulty occupied threshold type')
-
-        else:
-            if not (0 <= yaml_occupied_thresh <= 1):
-                error_messages.append('Faulty occupied threshold value')
-
-        # Free threshold
-        try:
-            yaml_free_thresh = float(parsed_yaml['free_thresh'])
-        except TypeError:
-            error_messages.append('Faulty free threshold type')
-        else:
-            if not (0 <= yaml_free_thresh <= 1):
-                error_messages.append('Faulty free threshold value')
-
-        # Negate
-        yaml_negate_thresh = parsed_yaml['negate']
-        if not (yaml_negate_thresh == 0 or yaml_negate_thresh == 1):
-            error_messages.append('Faulty negate value')
-
-        # * Optional fields:
-
-        # Mode
-        try:
-            yaml_mode = parsed_yaml['mode']
-            if yaml_mode not in ('trinary', 'scale', 'raw'):
-                error_messages.append('Faulty mode value')
-        except KeyError:
-            pass
-
-    except yaml.YAMLError:
-        error_messages.append('Corrupted YAML')
-    except KeyError:
-        error_messages.append('Required field missing')
-
-    if not error_messages:
-        return parsed_yaml
-    else:
-        return error_messages
 
 
 def dirr(dirable):
