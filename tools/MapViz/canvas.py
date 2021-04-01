@@ -1,15 +1,16 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QIcon, QImage, QPixmap, QKeyEvent, QMouseEvent, QWheelEvent, QShowEvent, QResizeEvent, QKeySequence
+from PyQt5.QtGui import QIcon, QImage, QPixmap, QKeyEvent, QMouseEvent, QWheelEvent, QShowEvent, QResizeEvent, \
+    QKeySequence
 from PyQt5.QtCore import QPoint, QPointF, QRect, QRectF, QSize, QSizeF, pyqtSignal
 from PyQt5.Qt import Qt
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsPixmapItem, QRubberBand
+from PyQt5.QtWidgets import (
+    QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsPixmapItem, QRubberBand)
 import numpy as np
-from helpers import clamp, calc_angle, rotation, scaleToFit, dirr
+from helpers import clamp, calc_angle, rotation, scaleToFit, dirr, Routine
 
 # ROI = Region of interest
 
-unit_vectors = {
-             'up': QPoint(0, 1),
+quadrants = {'up': QPoint(0, 1),
              'down':QPoint(0, -1),
              'left': QPoint(1, 0),
              'right': QPoint(-1, 0),
@@ -23,12 +24,13 @@ unit_vectors = {
 class ImageView(QGraphicsView):
     imageChanged = pyqtSignal()
 
-    def __init__(self, *args, **kwargs):
-        QGraphicsView.__init__(self, *args, **kwargs)
+    def __init__(self):
+        QGraphicsView.__init__(self)
         scene = QGraphicsScene(self)
         self.scene_pos = self.mapToScene(QPoint(0, 0))
         self.cursor_widget_x, self.cursor_widget_y = 0, 0
         self.cursor_image_x, self.cursor_image_y = 0, 0
+        self.const_image = None
         self.cropped_image = None
         self.graphics_pixmap = QGraphicsPixmapItem()
         scene.addItem(self.graphics_pixmap)
@@ -42,13 +44,13 @@ class ImageView(QGraphicsView):
         self.first_show_occurred = False
         self.last_scene_roi = None
         self.angle = 0
-        self.angle_at_cropping = 0
         self.pan_speed = 10
         self.pan_acceleration = 3  # this is const hard coded
         self.rotating_speed = 1
         self.rotating_acceleration = 1  # this is const hard coded
-        self.pixmap_history = []  # first default pixmap is added here, then loaded const pixmap
-        self.pixmap_history_current_idx = 0
+        self.latest_pixmap = None  # inserted from the main
+        self.history = []  # first default pixmap is added here, then loaded const pixmap
+        self.history_current_idx = 0
 
     @property
     def pixmap(self):
@@ -143,7 +145,7 @@ class ImageView(QGraphicsView):
     def current_scene_ROI(self):
         return self.last_scene_roi
 
-    def _pan(self, start_point, end_point, vector_scale) -> None:
+    def _pan(self, start_point, end_point, vector_scale):
         pan_vector = end_point*vector_scale - start_point
         scene2view = self.transform()
         sx = scene2view.m11()
@@ -186,7 +188,6 @@ class ImageView(QGraphicsView):
             if self.cropBand is None:
                 self.cropBand = QRubberBand(QRubberBand.Rectangle, self.viewport())
             self.cropBand.setGeometry(QRect(self.start_drag_image, QSize()))
-            self.angle_at_cropping = self.angle
             self.cropBand.show()
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
@@ -194,13 +195,9 @@ class ImageView(QGraphicsView):
         # update selection display
         if self.rubberBand is not None:
             self.rubberBand.setGeometry(QRect(self.start_drag_ui, event.pos()).normalized())
-            # print(self.rubberBand.geometry().x(), self.rubberBand.geometry().y(), self.rubberBand.geometry().width(), self.rubberBand.geometry().height())
 
         if self.cropBand is not None:
-            # print(self.cursor_image_x, self.cursor_image_y)
             self.cropBand.setGeometry(QRect(self.start_drag_ui, event.pos()).normalized())
-            # print(self.cropBand.geometry().x(), self.cropBand.geometry().y(), self.cropBand.geometry().width(), self.cropBand.geometry().height())
-            pass
 
         if self.panning:
             end_drag_ui = event.pos()
@@ -209,11 +206,11 @@ class ImageView(QGraphicsView):
 
         self.update()
 
-    # used for Undo/Redo - not fully developed yet
-    def add_and_cull_history(self) -> None:
-        self.pixmap_history_current_idx += 1
-        self.pixmap_history = self.pixmap_history[:self.pixmap_history_current_idx]
-        self.pixmap_history.append(self.pixmap)
+    def add_and_cull_history(self, added_routine) -> None:
+        # prevents branching of history, when you Undo and make new, you cannot return
+        self.history_current_idx += 1
+        self.history = self.history[:self.history_current_idx]
+        self.history.append(added_routine)
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         QGraphicsView.mouseReleaseEvent(self, event)
@@ -228,12 +225,15 @@ class ImageView(QGraphicsView):
             self.rubberBand = None
 
         if self.cropBand is not None:
+            self.angle = 0
             self.cropBand.hide()
             roi_width = self.cursor_image_x - self.start_drag_image.x()
             roi_height = self.cursor_image_y - self.start_drag_image.y()
             roi_rect = QRect(self.start_drag_image.x(), self.start_drag_image.y(), roi_width, roi_height)
             self.pixmap = self.pixmap.copy(roi_rect)
-            self.add_and_cull_history()
+            self.latest_pixmap = self.pixmap
+            self.add_and_cull_history((Routine.CROP.value, self.latest_pixmap))
+            self.populate_history_table()
             self.cropBand = None
 
         if self.panning:
@@ -249,32 +249,83 @@ class ImageView(QGraphicsView):
             sign = 1 if dy >= 0 else -1
             self.zoomROITo(scene_pos, sign)
 
-    def angle_rotate(self) -> None:
+    def populate_history_table(self):
+        self.main_widget.left_menu.history_table.history = self.history
+        self.main_widget.left_menu.history_table.populate()
+
+    def angle_rotate(self, angle) -> None:
         self.angle %= 360
-        # used for Undo/Redo - not fully developed yet
-        self.pixmap = rotation(self.pixmap_history[self.pixmap_history_current_idx], self.angle-self.angle_at_cropping)
+        self.pixmap = rotation(self.latest_pixmap, angle)
+        self.main_widget.left_menu.angle_box.angle_entry.setText(str(self.angle))
+
+    def execute_latest_history(self, history_current_idx):
+        current_history = self.history[:history_current_idx]
+        for history_idx, history_event in enumerate(reversed(current_history)):
+            if isinstance(history_event[1], QPixmap):
+                previous_pixmap = history_event[1]
+                self.latest_pixmap = history_event[1]
+                routines = current_history[len(current_history) - history_idx:]
+                if routines:
+                    if routines[-1][0] == Routine.ANGLE.value:
+                        previous_angle = routines[-1][1]
+                        self.angle = previous_angle
+                        previous_pixmap = rotation(previous_pixmap, previous_angle)
+                else:
+                    # no routines means the last is pixmap
+                    self.angle = 0
+
+                self.main_widget.left_menu.angle_box.angle_entry.setText(str(self.angle))
+                self.pixmap = previous_pixmap
+                break
+
+    def testing(self):
+        print('***TEST SUCCESS', self)
+        # self.angle_rotate(50)
+
+    def undo(self):
+        if self.history_current_idx >= 1:
+            self.execute_latest_history(self.history_current_idx)
+            self.history_current_idx -= 1
+        else:
+            # WARNING: Already at the oldest change
+            print('Already at the oldest change')
+        self.populate_history_table()
+
+    def redo(self):
+        redo_index = self.history_current_idx + 1
+        if redo_index < len(self.history):
+            redo_value = self.history[redo_index]
+            if isinstance(redo_value[1], QPixmap):
+                self.pixmap = redo_value[1]
+                self.latest_pixmap = redo_value[1]
+                self.angle = 0
+            elif redo_value[0] == Routine.ANGLE.value:
+                # self.pixmap = rotation(self.latest_pixmap, redo_value[1])
+                self.angle = redo_value[1]
+                self.angle_rotate(self.angle)
+
+            else:
+                raise TypeError
+            self.history_current_idx += 1
+        else:
+            # WARNING: Already at the newest change
+            print('Already at the newest change')
+        self.populate_history_table()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        # undo
         if event.matches(QKeySequence.Undo):
-            if self.pixmap_history_current_idx >= 1:
-                self.pixmap_history_current_idx -= 1
-                self.pixmap = self.pixmap_history[self.pixmap_history_current_idx]
-
-        # redo
+            self.undo()
         elif event.matches(QKeySequence.Redo):
-            if self.pixmap_history_current_idx+1 < len(self.pixmap_history):
-                self.pixmap_history_current_idx += 1
-                self.pixmap = self.pixmap_history[self.pixmap_history_current_idx]
+            self.redo()
 
         # rotation
         elif event.key() == Qt.Key_1:  # clockwise rotation
             self.angle -= self.rotating_speed
-            self.angle_rotate()
+            self.angle_rotate(self.angle)
 
         elif event.key() == Qt.Key_2:  # counter clockwise rotation
             self.angle += self.rotating_speed
-            self.angle_rotate()
+            self.angle_rotate(self.angle)
 
         # change speed of rotation
         elif event.key() == Qt.Key_3:  # clockwise rotation
@@ -285,21 +336,21 @@ class ImageView(QGraphicsView):
 
         # panning with keyboard W,A,S,D + diagonal Q,E,Z(Y),X(C)
         elif event.key() == Qt.Key_W:
-            self._pan(QPoint(0, 0), unit_vectors['up'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['up'], self.pan_speed)
         elif event.key() == Qt.Key_S:
-            self._pan(QPoint(0, 0), unit_vectors['down'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['down'], self.pan_speed)
         elif event.key() == Qt.Key_A:
-            self._pan(QPoint(0, 0), unit_vectors['left'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['left'], self.pan_speed)
         elif event.key() == Qt.Key_D:
-            self._pan(QPoint(0, 0), unit_vectors['right'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['right'], self.pan_speed)
         elif event.key() == Qt.Key_Q:
-            self._pan(QPoint(0, 0), unit_vectors['upleft'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['upleft'], self.pan_speed)
         elif event.key() == Qt.Key_E:
-            self._pan(QPoint(0, 0), unit_vectors['upright'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['upright'], self.pan_speed)
         elif event.key() == Qt.Key_Z or event.key() == Qt.Key_Y:
-            self._pan(QPoint(0, 0), unit_vectors['downleft'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['downleft'], self.pan_speed)
         elif event.key() == Qt.Key_X or event.key() == Qt.Key_C:
-            self._pan(QPoint(0, 0), unit_vectors['downright'], self.pan_speed)
+            self._pan(QPoint(0, 0), quadrants['downright'], self.pan_speed)
 
         # pan speed
         elif event.key() == Qt.Key_R:
@@ -307,12 +358,15 @@ class ImageView(QGraphicsView):
         elif event.key() == Qt.Key_F:
             self.pan_speed -= self.pan_acceleration
 
+        # for debugging
+        elif event.key() == Qt.Key_H:
+            print(self.history_current_idx, self.history)
+
     def keyReleaseEvent(self, event: QKeyEvent) -> None:
-        # when rotating by holding key, we want to count it as one routine (for undo-redo purposes)
-        if event.key() == Qt.Key_1 and not event.isAutoRepeat():
-            self.pixmap_history.append(('angle', self.angle))
-            print(self.angle)
-            self.reconstruct_from_history()
+        if (event.key() == Qt.Key_1 and not event.isAutoRepeat()) or (
+                event.key() == Qt.Key_2 and not event.isAutoRepeat()):
+            self.add_and_cull_history((Routine.ANGLE.value, self.angle))
+            self.populate_history_table()
 
     def showEvent(self, event: QShowEvent) -> None:
         QGraphicsView.showEvent(self, event)
@@ -327,16 +381,6 @@ class ImageView(QGraphicsView):
         self.fitInView(self.image_scene_rect, Qt.KeepAspectRatio)
         self.update()
 
-    # used for Undo/Redo - not fully developed yet
-    def reconstruct_from_history(self):
-        for history_idx, history_event in enumerate(reversed(self.pixmap_history)):
-            if isinstance(history_event, QPixmap):
-                latest_pixmap = history_event
-                subsequent_routines = self.pixmap_history[-history_idx:]
-                print(history_idx, self.pixmap_history)
-                print('subse', subsequent_routines)
-                print(latest_pixmap, latest_pixmap.size())
-                break
 
     # override arbitrary and unwanted margins: https://bugreports.qt.io/browse/QTBUG-42331 - based on QT sources
     def fitInView(self, rect, flags=Qt.IgnoreAspectRatio):
