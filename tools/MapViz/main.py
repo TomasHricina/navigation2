@@ -1,14 +1,15 @@
-
+#!/usr/bin/python3
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QDesktopWidget, QLineEdit, QSlider, QPushButton
 from PyQt5.QtWidgets import QGridLayout, QVBoxLayout, QHBoxLayout, QFileDialog, QLabel, QTableWidget
 from PyQt5.QtWidgets import QStyledItemDelegate, QDialog, QAbstractItemView, QTableView, QRadioButton
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QImage, QPixmap, QMouseEvent, QKeyEvent, QFont, QIntValidator, QStandardItemModel, QStandardItem
-from PyQt5.QtGui import QTextCursor, QBrush, QFocusEvent
+from PyQt5.QtGui import QTextCursor, QBrush, QFocusEvent, QIcon
 from PyQt5.QtCore import QPoint, QPointF, QRect, QRectF, QSize, QSizeF, pyqtSignal
 from PyQt5.Qt import Qt
 import yaml  # pip pyaml
-from canvas20 import ImageView
+from canvas0 import ImageView
 import os, sys
 from collections import namedtuple
 from helpers import Routine, dict2str
@@ -90,87 +91,14 @@ class AppImageView(ImageView):
         self.updateStatusBar()
 
 
-# ----------Top menu widgets----------
+# # ----------Top menu widgets----------
 
-class LoadButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(LoadButton, self).__init__(*args, **kwargs)
-        self.setFixedSize(*load_button_dimensions)
-        self.setText("Load Yaml")
-
-
-class SaveButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(SaveButton, self).__init__(*args, **kwargs)
-        self.setFixedSize(*save_button_dimensions)
-        self.setText("Save As")
-
-
-class UndoButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(UndoButton, self).__init__(*args, **kwargs)
-        self.setFixedSize(*undo_button_dimensions)
-        self.setText("Undo")
-
-
-class RedoButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(RedoButton, self).__init__(*args, **kwargs)
-        self.setFixedSize(*redo_button_dimensions)
-        self.setText("Redo")
-
-
-class HelpButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(HelpButton, self).__init__(*args, **kwargs)
-        self.setFixedSize(*help_button_dimensions)
-        self.setText("Help")
-
-
-class AboutButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(AboutButton, self).__init__(*args, **kwargs)
-        self.setFixedSize(*about_button_dimensions)
-        self.setText("About")
-
-
-class HelpDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setWindowTitle("Help")
-        self.layout = QGridLayout()
-        message = QLabel("Something happened, is that OK?")
-        self.layout.addWidget(message)
-        self.setLayout(self.layout)
-
-
-class AboutDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setWindowTitle("About")
-        self.layout = QGridLayout()
-        message = QLabel("Something happened, is that OK?")
-        self.layout.addWidget(message)
-        self.setLayout(self.layout)
 
 
 class TopMenu(QWidget):
     def __init__(self):
         super().__init__()
-        self.load_button = LoadButton()
-        self.save_button = SaveButton()
-        self.undo_button = UndoButton()
-        self.redo_button = RedoButton()
-        self.help_button = HelpButton()
-        self.about_button = AboutButton()
-
         self.hbox = QHBoxLayout()
-        self.hbox.addWidget(self.load_button)
-        self.hbox.addWidget(self.save_button)
-        self.hbox.addWidget(self.undo_button)
-        self.hbox.addWidget(self.redo_button)
-        self.hbox.addWidget(self.help_button)
-        self.hbox.addWidget(self.about_button)
         self.hbox.setAlignment(Qt.AlignLeft)
         self.setLayout(self.hbox)
 
@@ -656,19 +584,53 @@ class LeftMenu(QWidget):
 
 
 class MainWindow(QMainWindow):
+
     def __init__(self, image, input_path):
         QMainWindow.__init__(self)
+        self.canvas = AppImageView()
+        self.canvas.main_widget = self
 
-        self.setMinimumSize(*canvas_minimum_dimensions)
+        # self.setMinimumSize(*canvas_minimum_dimensions)
         # self.showMaximized()
+
+        # ----------Menu----------
+        menu_bar = self.menuBar()
+        menu_bar_file = menu_bar.addMenu('&File')
+        menu_bar_edit = menu_bar.addMenu('&Edit')
+
+        # File
+        save_act = QAction(QIcon('save.png'), '&Save as', self)
+        save_act.setShortcut('Ctrl+S')
+        save_act.setStatusTip('Save YAML and image')
+        save_act.triggered.connect(self.save_as)
+        menu_bar_file.addAction(save_act)
+
+        load_act = QAction(QIcon('load.png'), '&Load YAML', self)
+        load_act.setShortcut('Ctrl+L')
+        load_act.setStatusTip('Load YAML and image')
+        load_act.triggered.connect(self.load_yaml)
+        menu_bar_file.addAction(load_act)
+
+        # Edit
+        undo_act = QAction(QIcon('undo.png'), '&Undo', self)
+        undo_act.setShortcut('Ctrl+Z')
+        undo_act.setStatusTip('Undo action')
+        undo_act.triggered.connect(self.canvas.undo)
+        menu_bar_edit.addAction(undo_act)
+
+        redo_act = QAction(QIcon('redo.png'), '&Redo', self)
+        redo_act.setShortcut('Ctrl+Shift+Z')
+        redo_act.setStatusTip('Redo action')
+        redo_act.triggered.connect(self.canvas.redo)
+        menu_bar_edit.addAction(redo_act)
+
+        # ----------/Menu----------
 
         self.image = image
         self.input_path = input_path
         self.image_path_in_yaml = ''
-        self.canvas = AppImageView()
-        self.canvas.main_widget = self
+
         self.canvas.setMouseTracking(True)
-        self.top_menu = TopMenu()
         self.left_menu = LeftMenu(self.canvas)
 
         padding = self.frameGeometry().size() - self.geometry().size()
@@ -676,7 +638,6 @@ class MainWindow(QMainWindow):
         self.central = QWidget(self)
         self.main_layout = QtWidgets.QGridLayout(self.central)
 
-        self.main_layout.addWidget(self.top_menu, 0, 1)
         self.main_layout.addWidget(self.canvas, 1, 1)
         self.main_layout.addWidget(self.left_menu, 1, 0)
         self.main_layout.setColumnStretch(1, 2)
@@ -687,7 +648,7 @@ class MainWindow(QMainWindow):
         self.move(int((screen.width()-size.width())/4), int((screen.height()-size.height())/4))
         self.update_view()
         self.canvas.reset()
-        self.top_menu_bind_buttons()
+        # self.top_menu_bind_buttons()
 
     def update_view(self) -> None:
         self.canvas.image = self.image
@@ -698,13 +659,13 @@ class MainWindow(QMainWindow):
         self.canvas.populate_history_table()
         self.window_title()
 
-    def top_menu_bind_buttons(self) -> None:
-        self.top_menu.load_button.clicked.connect(self.load_yaml)
-        self.top_menu.save_button.clicked.connect(self.save_as)
-        self.top_menu.undo_button.clicked.connect(self.canvas.undo)
-        self.top_menu.redo_button.clicked.connect(self.canvas.redo)
-        self.top_menu.help_button.clicked.connect(lambda: HelpDialog().exec_())
-        self.top_menu.about_button.clicked.connect(lambda: AboutDialog().exec_())
+    # def top_menu_bind_buttons(self) -> None:
+    #     self.top_menu.load_button.clicked.connect(self.load_yaml)
+    #     self.top_menu.save_button.clicked.connect(self.save_as)
+    #     self.top_menu.undo_button.clicked.connect(self.canvas.undo)
+    #     self.top_menu.redo_button.clicked.connect(self.canvas.redo)
+    #     self.top_menu.help_button.clicked.connect(lambda: HelpDialog().exec_())
+    #     self.top_menu.about_button.clicked.connect(lambda: AboutDialog().exec_())
 
     def file_title(self):
         return os.path.basename(self.input_path)
