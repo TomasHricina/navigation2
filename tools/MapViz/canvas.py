@@ -10,7 +10,7 @@ from helpers import clamp, calc_angle, rotation, scaleToFit, dirr, Routine
 
 # ROI = Region of interest
 
-quadrants = {'up': QPoint(0, 1),
+unit_vectors = {'up': QPoint(0, 1),
              'down':QPoint(0, -1),
              'left': QPoint(1, 0),
              'right': QPoint(-1, 0),
@@ -336,21 +336,21 @@ class ImageView(QGraphicsView):
 
         # panning with keyboard W,A,S,D + diagonal Q,E,Z(Y),X(C)
         elif event.key() == Qt.Key_W:
-            self._pan(QPoint(0, 0), quadrants['up'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['up'], self.pan_speed)
         elif event.key() == Qt.Key_S:
-            self._pan(QPoint(0, 0), quadrants['down'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['down'], self.pan_speed)
         elif event.key() == Qt.Key_A:
-            self._pan(QPoint(0, 0), quadrants['left'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['left'], self.pan_speed)
         elif event.key() == Qt.Key_D:
-            self._pan(QPoint(0, 0), quadrants['right'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['right'], self.pan_speed)
         elif event.key() == Qt.Key_Q:
-            self._pan(QPoint(0, 0), quadrants['upleft'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['upleft'], self.pan_speed)
         elif event.key() == Qt.Key_E:
-            self._pan(QPoint(0, 0), quadrants['upright'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['upright'], self.pan_speed)
         elif event.key() == Qt.Key_Z or event.key() == Qt.Key_Y:
-            self._pan(QPoint(0, 0), quadrants['downleft'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['downleft'], self.pan_speed)
         elif event.key() == Qt.Key_X or event.key() == Qt.Key_C:
-            self._pan(QPoint(0, 0), quadrants['downright'], self.pan_speed)
+            self._pan(QPoint(0, 0), unit_vectors['downright'], self.pan_speed)
 
         # pan speed
         elif event.key() == Qt.Key_R:
