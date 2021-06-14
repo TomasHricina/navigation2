@@ -599,3 +599,5 @@ class ImageView(QGraphicsView):
             x_ratio = y_ratio = max(x_ratio, y_ratio)
         self.scale(x_ratio, y_ratio)
         self.centerOn(rect.center())
+        
+        
