@@ -1,7 +1,16 @@
 #!/usr/bin/python3
-from PyQt5.QtGui import *
+
+# External lib
 import numpy as np
 import cv2
+import qimage2ndarray
+
+
+# PyQT
+from PyQt5.QtGui import *
+from PyQt5.QtCore import QRect, QPoint
+
+# Python
 from collections import namedtuple
 from enum import Enum, auto, unique
 
@@ -11,6 +20,39 @@ class Routine(Enum):
     LOAD = auto()
     CROP = auto()
     ANGLE = auto()
+    PAINT_BRUSH = auto()
+    PAINT_LINE = auto()
+    PAINT_RECT = auto()
+    GRAY = auto()
+
+
+@unique
+class AddingPosition(Enum):
+    END = 'e'
+    START = 's'
+
+
+def create_logger(app_name):
+    import logging
+    import os
+    """Create a logging interface"""
+    logging_level = os.getenv('logging', logging.INFO)
+    logging.basicConfig(
+        level=logging_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(app_name)
+    return logger
+
+
+unit_vectors = {'up': QPoint(0, 1),
+                'down': QPoint(0, -1),
+                'left': QPoint(1, 0),
+                'right': QPoint(-1, 0),
+                'upleft': QPoint(1, 1),
+                'upright': QPoint(-1, 1),
+                'downleft': QPoint(1, -1),
+                'downright': QPoint(-1, -1)
+                }
 
 
 def dict2str(dictionary) -> str:
@@ -67,13 +109,20 @@ def rotateAndScale(img, degrees_clockwise, scale_factor=1):
 
 def rotation(_pixmap, degrees_clockwise):
     img = _pixmap.toImage()
-    channels_count = 4  # TODO: dont hardcode this stuff
+    channels_count = 4 
     buffer_string = img.bits().asstring(img.width() * img.height() * channels_count)
     buffer_array = np.frombuffer(buffer_string, dtype=np.uint8).reshape((img.height(), img.width(), channels_count))
     rotated = rotateAndScale(buffer_array, -degrees_clockwise)
     rotated_q_image = numpyQImage(rotated)
     rotated_pixmap = QPixmap.fromImage(rotated_q_image)
     return rotated_pixmap
+
+
+def remove_rotation_artifacts(_pixmap, _width, _height):
+    delta_w = (_pixmap.width() - _width) // 2
+    delta_h = (_pixmap.height() - _height) // 2
+    crop_rect = QRect(delta_w, delta_h, _width, _height)
+    return _pixmap.copy(crop_rect)
 
 
 def scaleToFit(canvas_w, canvas_h, image_w, image_h):
@@ -87,33 +136,13 @@ def scaleToFit(canvas_w, canvas_h, image_w, image_h):
     return dimensions(int(image_w), int(image_h))
 
 
-def dirr(dirable):
-    """
-    Function for developing
-    """
-    print('--------DIRRRR----------')
-    try:
-        print('print: ', dirable)
-        print('type: ', type(dirable))
-        print('--------DIR----------')
-        print(*dir(dirable), sep='\n')
-        print('--------/DIR----------')
-    except:
-        pass
-    try:
-        print('LEN: ', len(dirable))
-    except:
-        pass
-    try:
-        print('--------STR----------')
-        print(dirable.__str__)
-        print('--------/STR----------')
-    except:
-        pass
-    try:
-        print('--------REPR----------')
-        print(dirable.__repr__)
-        print('--------/REPR----------')
-    except:
-        pass
-    print('--------/DIRRRR----------')
+def qimage2array(_qimage):
+    return qimage2ndarray.rgb_view(_qimage)
+
+
+def qimage2raw_array(_qimage):
+    return qimage2ndarray.raw_view(_qimage)
+
+
+def single_rgb2gray(rgb):
+    return round(np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140])[0][0])
