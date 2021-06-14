@@ -1,0 +1,5 @@
+PyQt5
+opencv-python-headless
+numpy
+qimage2ndarray
+pyaml
