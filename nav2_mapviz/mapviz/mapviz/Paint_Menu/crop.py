@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+
+# PyQT
+from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.Qt import Qt
+
+# Python
+import logging
+
+# Source files
+from mapviz.Helpers.simple_focus_out_widgets import FocusOutButton
+
+logger = logging.getLogger("mapviz")
+
+
+class Crop(QWidget):
+    def __init__(self, canvas_instance):
+        super().__init__()
+        self.grid = QGridLayout()
+        self.canvas_instance = canvas_instance
+        self.button = FocusOutButton(canvas_instance)
+        self.button.setText("Crop")
+        self.button.setCheckable(True)
+        self.button.setToolTip("Alt+Mouse drag")
+        self.grid.addWidget(self.button)
+        self.grid.setAlignment(Qt.AlignTop)
+        self.grid.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.grid)
+
+    def toggle_state(self):
+        self.canvas_instance.cropping_activated = not self.canvas_instance.cropping_activated
