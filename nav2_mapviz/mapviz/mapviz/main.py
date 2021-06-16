@@ -42,7 +42,7 @@ __title__ = "Nav2-mapviz"
 __uri__ = "https://github.com/TomasHricina/navigation2"
 __author__ = "Tomáš Hričina"
 __maintainer__ = __author__
-__credits__ = ["Steve Macenski", ]
+__credits__ = ["Steve Macenski", "Alexey Merzlyakov" ]
 __email__ = "t.hri@seznam.cz"
 __license__ = None
 
