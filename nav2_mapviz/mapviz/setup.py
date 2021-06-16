@@ -16,6 +16,6 @@ setup(
      'mapviz.Paint_Menu',
      'mapviz.Waypoint_Menu'],
     include_package_data=True,
-    package_data={'mapViz.Images' : ['default_button.png', 'default_map.pgm', 'default_yaml.yaml', 'mapviz_logo.png', 'waypoint_logo.png']},
+    package_data={'mapviz.Images' : ['default_button.png', 'default_map.pgm', 'default_yaml.yaml', 'mapviz_logo.png', 'waypoint_logo.png']},
     description="Tool for editing maps, adding speed restrictions and waypoints",
 )
