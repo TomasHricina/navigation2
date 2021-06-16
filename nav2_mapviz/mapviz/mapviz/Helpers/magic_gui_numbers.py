@@ -1,5 +1,5 @@
 from collections import namedtuple
-from mapViz.Helpers.colors_helpers import colors
+from mapviz.Helpers.colors_helpers import colors
 from re import compile
 
 default_image_name = 'default_map.pgm'
