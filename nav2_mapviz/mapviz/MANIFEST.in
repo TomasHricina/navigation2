@@ -1,0 +1,5 @@
+include mapviz/Images/default_button.png
+include mapviz/Images/default_map.pgm
+include mapviz/Images/default_yaml.yaml
+include mapviz/Images/mapviz_logo.png
+include mapviz/Images/waypoint_logo.png
