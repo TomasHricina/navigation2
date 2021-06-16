@@ -6,6 +6,7 @@ Unzip archive
 cd ~/Downloads/nav2_mapviz/mapviz
 
 Install dependencies:
+sudo apt-get install python3-pyqt5 
 pip3 install -r requirements.txt
 
 cd mapviz
@@ -15,3 +16,7 @@ pip3 install .
 
 Usage (In command line):
 mapviz
+
+if "mapviz" command does not work:
+cd ~/Downloads/nav2_mapviz/mapviz
+python3 main.py
