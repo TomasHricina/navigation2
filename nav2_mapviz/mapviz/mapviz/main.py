@@ -37,7 +37,7 @@ logger.setLevel(log_level)
 # TODO: Drag and drop
 # TODO: Bottom-up crop
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 __title__ = "Nav2-mapviz"
 __uri__ = "https://github.com/TomasHricina/navigation2"
 __author__ = "Tomáš Hričina"
