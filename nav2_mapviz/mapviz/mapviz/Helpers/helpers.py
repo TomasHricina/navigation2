@@ -15,6 +15,13 @@ from collections import namedtuple
 from enum import Enum, auto, unique
 
 
+def correct_image_path(image_name):
+    import os
+    _ = os.path.split(__file__)[0]
+    _ = os.path.split(_)[0]
+    return os.path.join(_, 'Images', image_name)
+
+
 @unique
 class Routine(Enum):
     LOAD = auto()
