@@ -13,18 +13,13 @@ import logging
 # Source files
 from mapviz.Helpers.simple_focus_out_widgets import FocusOutLineEdit
 from mapviz.Helpers.default_map import default_yaml
+from mapviz.Helpers.helpers import correct_image_path
 
 # Constants
 from mapviz.Helpers.magic_gui_numbers import left_menu_width
 from mapviz.Helpers.magic_gui_numbers import warning_background, success_background, error_background
 from mapviz.Helpers.magic_gui_numbers import valid_filename_regex, list_sanitizer_regex
 
-def _image_path(image_name):
-    import os
-    __ROOT = os.path.normpath(__file__).split(os.path.sep) # split to individual path tokens
-    __ROOT = __ROOT[:-2]
-    __ROOT = os.path.join(*__ROOT)
-    return '/' + os.path.join(__ROOT, 'Images', image_name)
 
 logger = logging.getLogger("mapviz")
 
@@ -39,7 +34,7 @@ class YamlSingleRow(QWidget):
         self.entry = FocusOutLineEdit(left_menu.canvas_instance)
 
         self.button = QPushButton()
-        self.button.setIcon(QIcon(_image_path('default_button.png')))
+        self.button.setIcon(QIcon(correct_image_path('default_button.png')))
         self.label_image = QLabel()
 
         self.hbox.addWidget(self.label)
