@@ -1,4 +1,6 @@
 # Nav2-MapViz  
+![](https://github.com/TomasHricina/navigation2/blob/main/nav2_mapviz/preview_1_0_6.gif)  
+
   
 ### Download source code:  
 https://downgit.github.io/#/home?url=https://github.com/TomasHricina/navigation2/tree/main/nav2_mapviz  
