@@ -3,12 +3,12 @@
 ### Download source code:  
 https://downgit.github.io/#/home?url=https://github.com/TomasHricina/navigation2/tree/main/nav2_mapviz  
   
-**Unzip archive:**  
+### Unzip archive:  
 cd ~/Downloads/  
 unzip nav2_mapviz.zip  
   
   
-**Install dependencies:**  
+### Install dependencies:  
 sudo apt-get install python3-pyqt5   
 pip3 install opencv-python-headless  
 pip3 install numpy  
@@ -20,11 +20,11 @@ sudo apt-get install python3-pyqt5
 cd ~/Downloads/nav2_mapviz/mapviz  
 pip3 install -r requirements.txt  
   
-**Install MapViz package:**  
+### Install MapViz package:  
 cd ~/Downloads/nav2_mapviz/mapviz  
 pip3 install .  
   
-**Usage (In command line):**  
+### Usage (In command line):  
 mapviz  
   
 **Alternatively:**  
