@@ -1,6 +1,12 @@
 # Nav2-MapViz  
 ![](https://github.com/TomasHricina/navigation2/blob/main/nav2_mapviz/preview_1_0_6.gif)  
-
+Nav2-MapViz is convenience tool, that is useful for:  
+- viewing and editing maps  
+- adding speed restricted areas and keepout zones  
+- placing waypoints for navigation  
+  
+More about Keepout zones:
+https://navigation.ros.org/tutorials/docs/navigation2_with_keepout_filter.html
   
 ### Download source code:  
 https://downgit.github.io/#/home?url=https://github.com/TomasHricina/navigation2/tree/main/nav2_mapviz  
