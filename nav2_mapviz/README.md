@@ -27,7 +27,12 @@ pip3 install .
 **Usage (In command line):**  
 mapviz  
   
-**Alternatively:**"  
+**Alternatively:**  
 if "mapviz" command does not work:  
 cd ~/Downloads/nav2_mapviz/mapviz  
-python3 main.py  
+python3 main.py 
+    
+    
+  
+**Uninstall:**  
+pip3 uninstall nav2-mapviz
