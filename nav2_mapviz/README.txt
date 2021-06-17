@@ -1,4 +1,5 @@
 # Nav2
+**This is bold text**
 
 Download source code:
 https://downgit.github.io/#/home?url=https://github.com/TomasHricina/navigation2/tree/main/nav2_mapviz
