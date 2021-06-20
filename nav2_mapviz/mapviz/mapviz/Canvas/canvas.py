@@ -30,7 +30,6 @@ class ImageView(QGraphicsView):
 
     def __init__(self, _default_image):
         QGraphicsView.__init__(self)
-        logger.debug('AAAAAAAAAAAAAAAAAAAAAAAAAAA')
         # canvas
         self.main_scene = QGraphicsScene(self)
         self.scene_pos = self.mapToScene(QPoint(0, 0))
