@@ -14,6 +14,7 @@ from PyQt5.Qt import Qt
 # Python
 import os
 import sys
+import signal
 from collections import namedtuple
 
 # Source files
@@ -32,6 +33,7 @@ from mapviz.Waypoint_Menu.waypoint_menu import WaypointMenu
 log_level = "INFO"
 logger = create_logger("mapviz")
 logger.setLevel(log_level)
+signal.signal(signal.SIGINT, signal.SIG_DFL) # Allows CTRL+C to end the program
 
 
 # TODO: Drag and drop

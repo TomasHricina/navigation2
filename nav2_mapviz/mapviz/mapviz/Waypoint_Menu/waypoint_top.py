@@ -118,7 +118,7 @@ class WaypointChoices(QWidget):
 
         self.wp_size_slider = QSlider(Qt.Horizontal)
         self.wp_size_slider.setSingleStep(1)
-        self.wp_size_slider.setRange(1, 15)
+        self.wp_size_slider.setRange(1, 12)
         self.wp_size_slider.setValue(wp_default_text_size)
         Waypoint.waypoint_text_size = wp_default_text_size/wp_text_size_divider
 

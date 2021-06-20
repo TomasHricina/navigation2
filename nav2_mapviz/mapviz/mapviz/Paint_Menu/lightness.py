@@ -28,14 +28,14 @@ class Lightness(QWidget):  # used for speed restrictions
         self.grid.setAlignment(Qt.AlignTop)
 
         self.max_speed_spin = FocusOutDoubleSpinBox(canvas_instance)
-        self.max_speed_spin.setRange(1, 100)
+        self.max_speed_spin.setRange(0, 100)
         self.max_speed_spin.setSingleStep(0.1)
         self.max_speed_spin.setValue(default_max_speed)
         self.max_speed_label = QLabel()
         self.max_speed_label.setText("m/s max speed (optional)")
 
         self.target_speed_spin = FocusOutDoubleSpinBox(canvas_instance)
-        self.target_speed_spin.setRange(1, 100)
+        self.target_speed_spin.setRange(0, 100)
         self.target_speed_spin.setSingleStep(0.01)
         self.target_speed_spin.setValue(default_target_speed)
         self.target_speed_label = QLabel()
