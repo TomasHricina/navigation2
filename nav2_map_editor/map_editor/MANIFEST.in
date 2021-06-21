@@ -1,0 +1,5 @@
+include map_editor/Images/default_button.png
+include map_editor/Images/default_map.pgm
+include map_editor/Images/default_yaml.yaml
+include map_editor/Images/map_editor_logo.png
+include map_editor/Images/waypoint_logo.png
