@@ -12,7 +12,7 @@ from map_editor.Helpers.helpers import correct_image_path
 
 def yaml_and_image():
     try:
-        with open(correct_image_path('default_yaml.yaml'), 'r') as file:
+        with open(correct_image_path('default_map.yaml'), 'r') as file:
             _default_yaml = yaml.safe_load(file)
         _default_image = QImage()
         _default_image.load(correct_image_path(default_image_name))

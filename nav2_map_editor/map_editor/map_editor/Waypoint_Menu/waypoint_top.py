@@ -76,7 +76,7 @@ class WaypointChoices(QWidget):
                 if not line_edit:
                     line_edit = 0
                     self.radio3_line_edit.setText("0")
-                    position = AddingPosition.END.value
+                    position = 0
                 else:
                     try:
                         line_edit = float(line_edit)
@@ -111,6 +111,9 @@ class WaypointChoices(QWidget):
         self.reindex_button = FocusOutButton(canvas_instance)
         self.reindex_button.setText("&Reindex")
 
+        self.delete_all_waypoints_button = FocusOutButton(canvas_instance)
+        self.delete_all_waypoints_button.setText("&Delete all waypoints")
+
         self.show_idx_button = FocusOutButton(canvas_instance)
         self.show_idx_button.setText("&Show indexes")
         self.show_idx_button.setCheckable(True)
@@ -128,7 +131,9 @@ class WaypointChoices(QWidget):
                 self.radio3_line_edit.setText(str(Waypoint.waypoint_container[-1].id))
                 self.canvas_instance.populate_waypoint_table()
 
-        self.reindex_button.clicked.connect(reindex)
+        self.reindex_button.clicked.connect(reindex)     
+
+        self.delete_all_waypoints_button.clicked.connect(self.canvas_instance.delete_all_waypoints)
 
         def show_indexes():
             if self.show_idx_button.isChecked():
@@ -152,8 +157,9 @@ class WaypointChoices(QWidget):
         self.grid.addWidget(self.radio, 1, 0)
         self.grid.addWidget(self.button, 2, 0)
         self.grid.addWidget(self.reindex_button, 3, 0)
-        self.grid.addWidget(self.show_idx_button, 4, 0)
-        self.grid.addWidget(self.wp_size_slider, 5, 0)
+        self.grid.addWidget(self.delete_all_waypoints_button, 4, 0)
+        self.grid.addWidget(self.show_idx_button, 5, 0)
+        self.grid.addWidget(self.wp_size_slider, 6, 0)
         self.grid.setAlignment(Qt.AlignTop)
         self.grid.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid)

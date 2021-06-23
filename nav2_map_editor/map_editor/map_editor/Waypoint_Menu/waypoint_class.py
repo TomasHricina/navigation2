@@ -110,12 +110,19 @@ class Waypoint(QGraphicsItemGroup):
             for wp in wpc:
                 wp.text.setPlainText("")
 
+
     @classmethod
     def change_waypoint_text_size(cls, size_value):
         wpc = Waypoint.waypoint_container
         for wp in wpc:
             wp.text.setScale(size_value)
             Waypoint.waypoint_text_size = size_value
+
+    @classmethod
+    def sort_waypoints_by_id(cls):
+        wpc = Waypoint.waypoint_container
+        Waypoint.waypoint_container = sorted(wpc, key=lambda x: x.id)
+
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         button = event.button()
@@ -128,7 +135,7 @@ class Waypoint(QGraphicsItemGroup):
         if button == Qt.RightButton:
             self.canvas_instance.main_scene.removeItem(self)
             wpc.pop(idx)
-            self.canvas_instance.main_widget.waypoint_menu.populate()
+            self.canvas_instance.main_widget.waypoint_menu.waypoint_table.populate()
 
     def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseMoveEvent(event)

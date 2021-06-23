@@ -74,6 +74,9 @@ class ImageView(QGraphicsView):
         self.main_widget.paint_menu.light.spin_light.setValue(round(np.interp(calculate_lightness(
             self.paintColor), [0, 255], [0, 100])))
 
+
+    # Waypoint functions 
+
     def change_waypoint_movable(self) -> None:
         # used for deciding, whether waypoints should be movable
         should_waypoint_move = not (self.rotating or self.panning or self.brushReady or self.paint_rectReady
@@ -101,7 +104,7 @@ class ImageView(QGraphicsView):
         loaded_waypoint.moveBy(x, y)
 
     def populate_waypoint_table(self) -> None:
-        self.main_widget.waypoint_menu.populate()
+        self.main_widget.waypoint_menu.waypoint_table.populate()
 
     def export_waypoints(self) -> str:
         result_string = '\n'
@@ -113,12 +116,26 @@ class ImageView(QGraphicsView):
             result_string += '\n'
         return result_string
 
-    def clear_waypoints(self):
+    def delete_all_waypoints(self):
         wpc = Waypoint.waypoint_container
         if wpc:
             for wp in wpc:
                 self.main_scene.removeItem(wp)
             Waypoint.waypoint_container = []
+        self.main_widget.waypoint_menu.waypoint_table.populate()
+
+
+    def delete_specific_waypoint(self, wp_id):
+        wpc = Waypoint.waypoint_container
+        for wp_idx, wp_value in enumerate(wpc):
+            if wp_id == wp_value.id:
+                self.main_scene.removeItem(wp_value)
+                Waypoint.waypoint_container.pop(wp_idx)
+                self.populate_waypoint_table()
+                break
+
+    # /Waypoint functions 
+
 
     def init_brush_paint(self, target_image):
         self.painter = QPainter(target_image)
@@ -306,7 +323,7 @@ class ImageView(QGraphicsView):
                 self.cropBand = QRubberBand(QRubberBand.Rectangle, self.viewport())
             self.cropBand.setGeometry(QRect(self.start_drag_image, QSize()))
             self.cropBand.show()
-            self.clear_waypoints()
+            self.delete_all_waypoints()
 
         elif self.brushReady and event.button() == Qt.LeftButton:
             logger.debug("Paint brush started")
@@ -448,7 +465,7 @@ class ImageView(QGraphicsView):
         self.main_widget.left_menu.history_table.populate()
 
     def angle_rotate(self, angle) -> None:
-        self.clear_waypoints()
+        self.delete_all_waypoints()
         self.angle %= 360
         self.pixmap = rotation(self.latest_pixmap, angle)
         self.main_widget.paint_menu.angle_box.angle_entry.setText(str(self.angle))
@@ -561,6 +578,9 @@ class ImageView(QGraphicsView):
             self.pan_speed += self.pan_acceleration
         elif event.key() == Qt.Key_F:
             self.pan_speed -= self.pan_acceleration
+
+        elif event.key() == Qt.Key_H:
+            Waypoint.sort_waypoints_by_id()
 
     def keyReleaseEvent(self, event: QKeyEvent) -> None:
         if (event.key() == Qt.Key_1 and not event.isAutoRepeat()) or (

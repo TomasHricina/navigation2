@@ -53,7 +53,7 @@ class YamlBox(QWidget):
         self.vbox = QVBoxLayout()
         self.title = QLabel()
         self.left_menu = left_menu
-        self.latest_yaml_name = 'default_yaml.yaml'
+        self.latest_yaml_name = 'default_map.yaml'
         self.latest_yaml = default_yaml
         self.flags = {  # used for disabling Save, when input is invalid, call self.update_flags()
             'yaml': True,

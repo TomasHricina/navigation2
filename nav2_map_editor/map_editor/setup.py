@@ -16,6 +16,6 @@ setup(
      'map_editor.Paint_Menu',
      'map_editor.Waypoint_Menu'],
     include_package_data=True,
-    package_data={'map_editor.Images' : ['default_button.png', 'default_map.pgm', 'default_yaml.yaml', 'map_editor_logo.png', 'waypoint_logo.png']},
+    package_data={'map_editor.Images' : ['default_button.png', 'default_map.pgm', 'default_map.yaml', 'map_editor_logo.png', 'waypoint_logo.png']},
     description="Tool for editing maps, adding speed restrictions and waypoints",
 )

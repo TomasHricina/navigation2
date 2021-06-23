@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         menu_bar_file = menu_bar.addMenu('&File')
         menu_bar_edit = menu_bar.addMenu('&Edit')
 
-        # File
+        # # File
         save_act = QAction(QIcon('save.png'), '&Save as', self)
         save_act.setShortcut('Ctrl+S')
         save_act.setStatusTip('Save YAML and image')
@@ -205,7 +205,7 @@ class MainWindow(QMainWindow):
                 parsed_yaml['image'] = image_basename
                 self.left_menu.yaml_box.latest_yaml = parsed_yaml
                 self.left_menu.yaml_box.insert_yaml_into_entries()
-                self.canvas.clear_waypoints()
+                self.canvas.delete_all_waypoints()
                 for i in parsed_yaml:
                     if i.startswith('wp_'):
                         wp_id = int(i.split('_')[1])
@@ -247,10 +247,12 @@ class MainWindow(QMainWindow):
         self.left_menu.yaml_box.update_flags()
 
         if False in self.left_menu.yaml_box.flags.values():
+            logger.info("At least one value does not comply with map_server YAML standart")
             logger.debug("Save failed")
             return
 
         if '' in (future_yaml_name, future_image_name):
+            logger.info("Cannot save empty name")
             logger.debug("Save failed")
             return
 
@@ -295,7 +297,9 @@ class MainWindow(QMainWindow):
             yaml_file.write(export_string)
 
         self.canvas.grayscale_canvas()
-        self.canvas.pixmap.save(future_image_name)
+        
+        image_path = os.path.split(file_path)[0]
+        self.canvas.pixmap.save(os.path.join(image_path, future_image_name))
         logger.debug("Save succeeded")
 
 

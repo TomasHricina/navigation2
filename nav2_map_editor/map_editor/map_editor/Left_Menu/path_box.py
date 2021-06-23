@@ -8,6 +8,7 @@ from PyQt5.QtGui import QFont
 import logging
 
 # Source files
+from map_editor.Helpers.helpers import correct_image_path
 from map_editor.Helpers.simple_focus_out_widgets import FocusOutLineEdit
 
 # Constants
@@ -32,7 +33,8 @@ class PathBox(QWidget):
 
         self.yaml_entry = FocusOutLineEdit(left_menu.canvas_instance)
         self.yaml_entry.setReadOnly(True)
-        self.yaml_entry.setText('../default_yaml.yaml')
+
+        self.yaml_entry.setText(correct_image_path('default_map.yaml'))
         self.yaml_hbox.addWidget(self.yaml_entry)
         self.yaml_hbox.setContentsMargins(0, 0, 0, 0)
         self.yaml_widget.setLayout(self.yaml_hbox)
@@ -42,7 +44,7 @@ class PathBox(QWidget):
 
         self.img_entry = FocusOutLineEdit(left_menu.canvas_instance)
         self.img_entry.setReadOnly(True)
-        self.img_entry.setText('../default_map.pgm')
+        self.img_entry.setText(correct_image_path('default_map.pgm'))
         self.img_hbox.addWidget(self.img_entry)
         self.img_hbox.setContentsMargins(0, 0, 0, 0)
         self.img_widget.setLayout(self.img_hbox)

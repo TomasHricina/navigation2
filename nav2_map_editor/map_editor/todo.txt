@@ -1,0 +1,5 @@
+Documentation
+Origin transformations
+Fix "Add after" negative waypoint idx
+Fix bottom-up crop
+Add drag and drop
