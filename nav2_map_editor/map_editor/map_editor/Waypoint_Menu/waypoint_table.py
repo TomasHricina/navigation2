@@ -19,9 +19,7 @@ logger = logging.getLogger("map_editor")
 
 
 class WaypointCell(QWidget):
-    """
-    Cell in waypoint table
-    """
+    """Cell widget in waypoint table"""
     def __init__(self, canvas_instance, wp_value, parent=None):
         QWidget.__init__(self, parent)
 

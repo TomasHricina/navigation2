@@ -27,6 +27,11 @@ logger = logging.getLogger("map_editor")
 
 class ImageView(QGraphicsView):
     imageChanged = pyqtSignal()
+    '''
+    Canvas class 
+    - access main by self.main_widget
+    - outside of this module, access this class by self.canvas_instance
+    '''
 
     def __init__(self, _default_image):
         QGraphicsView.__init__(self)
@@ -78,7 +83,7 @@ class ImageView(QGraphicsView):
     # Waypoint functions 
 
     def change_waypoint_movable(self) -> None:
-        # used for deciding, whether waypoints should be movable
+        '''used for deciding, whether waypoints should be movable'''
         should_waypoint_move = not (self.rotating or self.panning or self.brushReady or self.paint_rectReady
                                     or self.paint_lineReady or self.adding_waypoint)
         Waypoint.change_movable(should_waypoint_move)
@@ -104,9 +109,11 @@ class ImageView(QGraphicsView):
         loaded_waypoint.moveBy(x, y)
 
     def populate_waypoint_table(self) -> None:
+        '''used for updating waypoint table'''
         self.main_widget.waypoint_menu.waypoint_table.populate()
 
     def export_waypoints(self) -> str:
+        # used for saving waypoints into YAML file
         result_string = '\n'
         Waypoint.reindex_waypoint()
         wpc = Waypoint.waypoint_container
@@ -138,10 +145,12 @@ class ImageView(QGraphicsView):
 
 
     def init_brush_paint(self, target_image):
+        '''call it before starting paint with brush'''
         self.painter = QPainter(target_image)
         self.painter.setPen(QPen(self.paintColor, self.brushSize, Qt.SolidLine, Qt.SquareCap, Qt.RoundJoin))
 
     def init_rect_paint(self, target_image):
+        ''' call it before starting paint with rectangle'''
         self.painter = QPainter(target_image)
         brush = QBrush()
         brush.setColor(self.paintColor)
@@ -453,7 +462,7 @@ class ImageView(QGraphicsView):
             self.zoomROITo(scene_pos, sign)
 
     def add_routine_cull_history(self, added_routine) -> None:
-        # prevents branching of history, when you Undo and make new, you cannot return
+        ''' prevents branching of history, when you Undo and make new, you cannot return '''
         logger.debug("Add and cull history")
         self.history_current_idx += 1
         self.history = self.history[:self.history_current_idx]
@@ -461,6 +470,7 @@ class ImageView(QGraphicsView):
         self.populate_history_table()
 
     def populate_history_table(self):
+        ''' updates history table '''
         self.main_widget.left_menu.history_table.history = self.history
         self.main_widget.left_menu.history_table.populate()
 
@@ -472,7 +482,8 @@ class ImageView(QGraphicsView):
         # self.reset_view()
 
     def undo_redo_disable_transformations(self, current_history):
-        for event in current_history:  # enabling and disabling transformations after undo/redo
+        ''' enabling and disabling transformations after undo/redo '''
+        for event in current_history:  
             event_type = event[0]
             if event_type not in (Routine.LOAD.value, Routine.ANGLE.value, Routine.CROP.value):
                 self.disable_transformations(True)
@@ -481,6 +492,7 @@ class ImageView(QGraphicsView):
             self.disable_transformations(False)
 
     def execute_latest_history(self, history_current_idx):
+        ''' goes through the stack of routines in history and executes them in order '''
         current_history = self.history[:history_current_idx]
         self.undo_redo_disable_transformations(current_history)
         for history_idx, last_history_event in enumerate(reversed(current_history)):

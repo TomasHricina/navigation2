@@ -41,27 +41,3 @@ class WaypointMenu(QWidget):
         self.grid.setAlignment(Qt.AlignTop)
         self.grid.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid)
-
-    # def populate(self):
-    #     wpc = Waypoint.waypoint_container
-    #     self.table.setRowCount(len(wpc))
-
-    #     for wp_idx, wp_value in enumerate(wpc):
-    #         cell_text = str(wp_value.x) + ' ' + str(wp_value.y)
-    #         cell_widget = QLabel()
-    #         cell_widget = QPushButton()
-    #         cell_widget.clicked.connect(lambda: self.canvas_instance.delete_specific_waypoint(wp_idx))
-            
-
-
-
-    #         # cell_widget.setText(cell_text)
-    #         self.table.setCellWidget(wp_idx, 0, cell_widget)
-
-    # def refresh_specific_waypoint(self, wp_idx):
-    #     wp = Waypoint.waypoint_container[wp_idx]
-    #     cell_text = str(wp.x) + ' ' + str(wp.y)
-    #     cell_widget = QLabel()
-    #     cell_widget.setText(cell_text)
-    #     self.table.setCellWidget(wp_idx, 0, cell_widget)
-

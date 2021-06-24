@@ -22,8 +22,8 @@ logger = logging.getLogger("map_editor")
 
 
 class PaintMenu(QWidget):
-    # contains all the painting capabilities
-    # waypoint menu has to be passed in, in order to make exclusive buttons across two widgets
+    ''' contains all the painting capabilities
+    waypoint menu has to be passed in, in order to make exclusive buttons across two widgets'''
     def __init__(self, canvas_instance, waypoint_menu):
         super().__init__()
         logger.debug("Paint menu created")

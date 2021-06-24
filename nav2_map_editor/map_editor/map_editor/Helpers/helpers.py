@@ -24,6 +24,7 @@ def correct_image_path(image_name):
 
 @unique
 class Routine(Enum):
+    '''Each routine represents action by user'''
     LOAD = auto()
     CROP = auto()
     ANGLE = auto()
@@ -35,6 +36,8 @@ class Routine(Enum):
 
 @unique
 class AddingPosition(Enum):
+    '''Informs the Waypoint class, where user wants to put waypoint,
+     if it is number, it is after that number'''
     END = 'e'
     START = 's'
 
@@ -142,39 +145,6 @@ def scaleToFit(canvas_w, canvas_h, image_w, image_h):
         image_w = image_h * image_width_height_ratio
     return dimensions(int(image_w), int(image_h))
 
-
-def dirr(dirable):
-    """
-    Function for developing
-    """
-    print('--------DIRRRR----------')
-    try:
-        print('print: ', dirable)
-        print('type: ', type(dirable))
-        print('--------DIR----------')
-        print(*dir(dirable), sep='\n')
-        print('--------/DIR----------')
-    except:
-        pass
-    try:
-        print('LEN: ', len(dirable))
-    except:
-        pass
-    try:
-        print('--------STR----------')
-        print(dirable.__str__)
-        print('--------/STR----------')
-    except:
-        pass
-    try:
-        print('--------REPR----------')
-        print(dirable.__repr__)
-        print('--------/REPR----------')
-    except:
-        pass
-    print('--------/DIRRRR----------')
-
-
 def qimage2array(_qimage):
     return qimage2ndarray.rgb_view(_qimage)
 
@@ -223,3 +193,35 @@ def show_images(*_images, gray=False):
             return
         print()
     plt.show()
+
+
+def dirr(dirable):
+    """
+    Function for developing
+    """
+    print('--------DIRRRR----------')
+    try:
+        print('print: ', dirable)
+        print('type: ', type(dirable))
+        print('--------DIR----------')
+        print(*dir(dirable), sep='\n')
+        print('--------/DIR----------')
+    except:
+        pass
+    try:
+        print('LEN: ', len(dirable))
+    except:
+        pass
+    try:
+        print('--------STR----------')
+        print(dirable.__str__)
+        print('--------/STR----------')
+    except:
+        pass
+    try:
+        print('--------REPR----------')
+        print(dirable.__repr__)
+        print('--------/REPR----------')
+    except:
+        pass
+    print('--------/DIRRRR----------')

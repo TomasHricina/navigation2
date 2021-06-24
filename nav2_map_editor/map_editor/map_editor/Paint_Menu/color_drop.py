@@ -32,6 +32,7 @@ class ChangeColor(QWidget):
         self.label_color.setText('Color')
 
         def create_color_icon(_color, _width=color_icon_width, _height=color_icon_height) -> QIcon:
+            '''Used to create rectangle icons of each color, used for drop down menu'''
             _r, _g, _b, _ = QColor(_color).getRgb()
             return QIcon(QPixmap.fromImage(qimage2ndarray.array2qimage(
                 (_r, _g, _b) * np.ones((_height, _width, 3), np.ubyte))))

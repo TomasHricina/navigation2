@@ -62,7 +62,7 @@ class WaypointChoices(QWidget):
         self.radio3_line_edit.textChanged.connect(line_edit_update_adding_position)
 
         def change_adding_type():
-            self.button.setEnabled(True)
+            ''' User can pick adding waypoint position after particular point '''
             if self.radio1.isChecked():
                 position = AddingPosition.START.value
                 self.radio3_line_edit.setEnabled(False)
@@ -126,6 +126,7 @@ class WaypointChoices(QWidget):
         Waypoint.waypoint_text_size = wp_default_text_size/wp_text_size_divider
 
         def reindex():
+            # resets the indexes of waypoints, so they are integers starting from 1
             Waypoint.reindex_waypoint()
             if Waypoint.waypoint_container:
                 self.radio3_line_edit.setText(str(Waypoint.waypoint_container[-1].id))
@@ -148,6 +149,7 @@ class WaypointChoices(QWidget):
         self.show_idx_button.clicked.connect(show_indexes)
 
         def change_wp_size(size_value):
+            # changes waypoint font size
             Waypoint.change_waypoint_text_size(size_value/wp_text_size_divider)
             self.canvas_instance.setFocus(Qt.OtherFocusReason)
 

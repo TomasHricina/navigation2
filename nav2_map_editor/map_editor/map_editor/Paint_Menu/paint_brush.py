@@ -14,8 +14,8 @@ logger = logging.getLogger("map_editor")
 
 
 class PaintBrush(QWidget):
-    # after user clicks on Draw brush button, brushReady variable is set to True
-    # if brushReady is True and user clicks on the canvas, the brush painting starts
+    ''' after user clicks on Draw brush button, brushReady variable is set to True
+    if brushReady is True and user clicks on the canvas, the brush painting starts'''
 
     def __init__(self, canvas_instance):
         super().__init__()

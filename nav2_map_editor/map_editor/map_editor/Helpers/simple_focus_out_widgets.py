@@ -7,7 +7,7 @@ from PyQt5.Qt import Qt
 
 
 class FocusOutLineEdit(QLineEdit):
-    # Makes sure, that after entry is filled, canvas is brought into focus
+    '''Makes sure, that after entry is filled, canvas is brought into focus'''
     def __init__(self, canvas_instance):
         super().__init__()
         self.canvas_instance = canvas_instance
@@ -19,7 +19,7 @@ class FocusOutLineEdit(QLineEdit):
 
 
 class FocusOutButton(QPushButton):
-    # Makes sure, that after button click, canvas is brought into focus
+    '''Makes sure, that after button click, canvas is brought into focus'''
     def __init__(self, canvas_instance):
         super().__init__()
         self.canvas_instance = canvas_instance
@@ -27,7 +27,7 @@ class FocusOutButton(QPushButton):
 
 
 class FocusOutSpinBox(QSpinBox):
-    # Makes sure, that after spinbox is changed, canvas is brought into focus
+    '''Makes sure, that after spinbox is changed, canvas is brought into focus'''
     def __init__(self, canvas_instance):
         super().__init__()
         self.canvas_instance = canvas_instance
@@ -35,7 +35,7 @@ class FocusOutSpinBox(QSpinBox):
 
 
 class FocusOutDoubleSpinBox(QDoubleSpinBox):
-    # Makes sure, that after spinbox is changed, canvas is brought into focus
+    '''Makes sure, that after spinbox is changed, canvas is brought into focus'''
     def __init__(self, canvas_instance):
         super().__init__()
         self.canvas_instance = canvas_instance
